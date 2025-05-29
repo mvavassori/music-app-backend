@@ -4,7 +4,7 @@ namespace Models;
 class Song {
     private ?int $id;
     private string $title;
-    private string $artistId;
+    private string $artistId; // foreign key
     private ?string $album;
     private ?string $genre;
     private ?string $createdAt;
