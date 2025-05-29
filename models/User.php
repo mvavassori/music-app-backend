@@ -18,4 +18,46 @@ class User {
         $this->updatedAt = $updatedAt;
     }
 
+
+    // ** getters and setters **
+    public function getId(): int|null {
+        return $this->id;
+    }
+
+    public function getUsername(): string {
+        return $this->username; 
+    }
+
+    public function getEmail(): string {
+        return $this->email;
+    }
+
+    public function getPassword(): string {
+        return $this->password;
+    }
+
+    public function getCreatedAt(): string|null {
+        return $this->createdAt;
+    }
+    
+    public function getUpdatedAt(): string|null {
+        return $this->updatedAt;
+    }
+
+    public function setUsername(string $username): void {
+        $this->username = $username;
+    }
+
+    public function setEmail(string $email): void {
+        $this->email = $email;
+    }
+
+    public function setPassword(string $password): void {
+        $this->password = $password;
+    }
+
+    public function setUpdateAt(string $updatedAt) {
+        $this->updatedAt = $updatedAt;
+    }
+
 }
