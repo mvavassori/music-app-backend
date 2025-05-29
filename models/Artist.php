@@ -1,17 +1,18 @@
 <?php
-
-class Artist
-{
+namespace Models;
+class Artist {
     private ?int $id;
     private string $name;
     private ?string $bio;
+    private ?string $imageUrl;
     private ?string $createdAt;
     private ?string $updatedAt;
 
-    public function __construct(?int $id, string $name, ?string $bio = null, ?string $createdAt = null, ?string $updatedAt = null) {
+    public function __construct(?int $id, string $name, ?string $bio = null, ?string $imageUrl, ?string $createdAt = null, ?string $updatedAt = null) {
         $this->id = $id;
         $this->name = $name;
         $this->bio = $bio;
+        $this->imageUrl = $imageUrl;
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
     }
@@ -24,16 +25,12 @@ class Artist
         return $this->name;
     }
 
-    public function setName(string $name): void {
-        $this->name = $name;
-    }
-
     public function getBio(): ?string {
         return $this->bio;
     }
 
-    public function setBio(?string $bio): void {
-        $this->bio = $bio;
+    public function getImageUrl(): ?string {
+        return $this->imageUrl;
     }
 
     public function getCreatedAt(): ?string {
@@ -42,6 +39,14 @@ class Artist
 
     public function getUpdatedAt(): ?string {
         return $this->updatedAt;
+    }
+
+    public function setName(string $name): void {
+        $this->name = $name;
+    }
+
+    public function setBio(?string $bio): void {
+        $this->bio = $bio;
     }
 
 }
