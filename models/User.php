@@ -56,8 +56,4 @@ class User {
         $this->password = $password;
     }
 
-    public function setUpdateAt(string $updatedAt) {
-        $this->updatedAt = $updatedAt;
-    }
-
 }
