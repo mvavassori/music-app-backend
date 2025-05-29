@@ -59,4 +59,8 @@ class Song {
     public function setAlbum(?string $album): void {
         $this->album = $album;
     }
+
+    public function setGenre(?string $genre): void {
+        $this->genre = $genre;
+    }
 }
