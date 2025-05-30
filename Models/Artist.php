@@ -8,7 +8,7 @@ class Artist {
     private ?string $createdAt;
     private ?string $updatedAt;
 
-    public function __construct(?int $id, string $name, ?string $bio = null, ?string $imageUrl, ?string $createdAt = null, ?string $updatedAt = null) {
+    public function __construct(?int $id, string $name, ?string $bio = null, ?string $imageUrl = null, ?string $createdAt = null, ?string $updatedAt = null) {
         $this->id = $id;
         $this->name = $name;
         $this->bio = $bio;
