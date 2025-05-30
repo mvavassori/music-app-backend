@@ -119,7 +119,7 @@ class UserService {
         }
     }
 
-    public function updateProfile($userId, $username, $email) {
+    public function updateProfile($userId, $username, $email): array {
         // check if user exists
         $user = $this->userRepo->findById($userId);
 
@@ -158,7 +158,7 @@ class UserService {
 
     }
 
-    public function deleteProfile($id) {
+    public function deleteProfile($id): array {
         try {
             $this->userRepo->delete($id);
             return [
