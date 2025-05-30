@@ -49,4 +49,8 @@ class Artist {
         $this->bio = $bio;
     }
 
+    public function setImageUrl(?string $imageUrl): void {
+        $this->imageUrl = $imageUrl;
+    }
+
 }
