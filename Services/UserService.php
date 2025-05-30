@@ -159,6 +159,15 @@ class UserService {
     }
 
     public function deleteProfile($id): array {
+        $user = $this->userRepo->findById($id);
+
+        if (!$user) {
+            return [
+                "success" => false,
+                "message" => "U not found"
+            ];
+        }
+        
         try {
             $this->userRepo->delete($id);
             return [

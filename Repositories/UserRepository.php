@@ -76,6 +76,7 @@ class UserRepository extends BaseRepository {
         }
     }
 
+    // helper method
     public function emailExists(string $email): bool {
         $stmt = $this->execute("SELECT COUNT(*) FROM users WHERE email = ?", [$email]);
         $count = $stmt->fetchColumn();  // fetchColumn() gets the first column of first row (i just need to check if there's a row)
