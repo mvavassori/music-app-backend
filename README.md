@@ -4,6 +4,11 @@ A simple application to get familiar with making applications using PHP followin
 
 ## Container creation
 
+Create network:
+```
+podman network create music-app-network
+```
+
 MySQL database container:
 
 ```
