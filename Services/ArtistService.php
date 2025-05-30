@@ -3,15 +3,12 @@ namespace Services;
 
 use Models\Artist;
 use Repositories\ArtistRepository;
-use Repositories\SongRepository;
 
 class ArtistService {
     private ArtistRepository $artistRepo;
-    private SongRepository $songRepo;
 
-    public function __construct($artistRepo, $songRepo) {
+    public function __construct($artistRepo) {
         $this->artistRepo = $artistRepo;
-        $this->songRepo = $songRepo;
     }
 
     public function createArtist($name, $bio = null, $imageUrl = null): array {
@@ -77,21 +74,6 @@ class ArtistService {
                 'message' => 'Failed to fetch artists: ' . $e->getMessage()
             ];
         }
-    }
-
-    // todo get artist with songs
-    public function getArtistWithSongs($id) {
-        $artist = $this->artistRepo->findById($id);
-
-        if(!$artist) {
-            return [
-                "success" => false,
-                "message" => "Artist not found"
-            ];
-        }
-
-        
-
     }
 
 
