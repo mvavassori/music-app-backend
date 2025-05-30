@@ -1,6 +1,6 @@
 # Music App Backend
 
-A simple application to get familiar with making applications using PHP following OOP principles.
+A simple application to get familiar with making applications using PHP following OOP principles (wihtout any frameworks).
 
 ## Container creation
 
