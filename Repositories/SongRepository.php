@@ -1,7 +1,6 @@
 <?php
 namespace Repositories;
 
-use Exception;
 use Models\Song;
 use PDOException;
 
