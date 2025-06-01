@@ -16,12 +16,12 @@ class SongRepository extends BaseRepository {
 
     public function findAll(): array {
         $stmt = $this->execute("SELECT * FROM songs ORDER BY title");
-        
+
         $songs = [];
         while ($row = $stmt->fetch()) {
             $songs[] = $this->mapRowToSong($row);
         }
-        
+
         return $songs;
     }
 
@@ -30,7 +30,7 @@ class SongRepository extends BaseRepository {
 
         $songs = [];
 
-        while($row = $stmt->fetch()) {
+        while ($row = $stmt->fetch()) {
             $songs[] = $this->mapRowToSong($row);
         }
         return $songs;
@@ -40,7 +40,7 @@ class SongRepository extends BaseRepository {
 
         // first check if the artist exists (artist_id is a foreign key)
         $checkArtist = $this->execute(
-            "SELECT id FROM artists WHERE id = ?", 
+            "SELECT id FROM artists WHERE id = ?",
             [$song->getArtistId()]
         );
 
@@ -67,9 +67,9 @@ class SongRepository extends BaseRepository {
         }
     }
 
-    public function update(Song $song) {
+    public function update(Song $song): Song|null {
         $checkArtist = $this->execute(
-            "SELECT id FROM artists WHERE id = ?", 
+            "SELECT id FROM artists WHERE id = ?",
             [$song->getArtistId()]
         );
 
@@ -89,6 +89,8 @@ class SongRepository extends BaseRepository {
                 $song->getGenre(),
                 $song->getId()
             ]);
+
+            return $this->findById($song->getId());
         } catch (PDOException $e) {
             throw new PDOException("Failed to update song: " . $e->getMessage());
         }
@@ -98,7 +100,7 @@ class SongRepository extends BaseRepository {
         try {
             $stmt = $this->execute("DELETE FROM songs WHERE id = ?", [$id]);
             return $stmt->rowCount() > 0;
-            
+
         } catch (PDOException $e) {
             throw new PDOException("Failed to delete song: " . $e->getMessage());
         }
@@ -112,7 +114,7 @@ class SongRepository extends BaseRepository {
         $stmt = $this->execute($query, [$id]);
 
         $result = $stmt->fetch();
-        
+
         return $result ?: null;
     }
 
