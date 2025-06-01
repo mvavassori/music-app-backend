@@ -10,7 +10,7 @@ class Song {
     private ?string $createdAt;
     private ?string $updatedAt;
 
-    public function __construct(?int $id, string $title, string $artistId, ?string $album, ?string $genre,  ?string $createdAt, ?string $updatedAt) {
+    public function __construct(?int $id, string $title, string $artistId, ?string $album, ?string $genre, ?string $createdAt, ?string $updatedAt) {
         $this->id = $id;
         $this->title = $title;
         $this->artistId = $artistId;
@@ -27,7 +27,7 @@ class Song {
     public function getTitle(): string {
         return $this->title;
     }
-    
+
     public function getArtistId(): string {
         return $this->artistId;
     }
