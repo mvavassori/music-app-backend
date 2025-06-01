@@ -118,7 +118,7 @@ class UserService {
         ];
     }
 
-    public function updateProfile($userId, $username, $email): array {
+    public function updateProfile(int $userId, array $data): array {
         // check if user exists
         $user = $this->userRepo->findById($userId);
 
@@ -129,17 +129,34 @@ class UserService {
             ];
         }
 
-        // check if new email is taken by another user
-        $existingUser = $this->userRepo->findByEmail($email);
-        if ($existingUser && $existingUser->getId() !== $userId) {
-            return [
-                "success" => false,
-                "message" => "Email already taken"
-            ];
+        if (isset($data["username"])) {
+            if (empty($data["username"])) {
+                return [
+                    "success" => false,
+                    "message" => "Username cannot be empty"
+                ];
+            }
+            $user->setUsername($data["username"]);
         }
 
-        $user->setUsername($username);
-        $user->setEmail($email);
+        if (isset($data["email"])) {
+
+            if (empty($data['email'])) {
+                return [
+                    'success' => false,
+                    'message' => 'Email cannot be empty'
+                ];
+            }
+
+            if (!filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
+                return [
+                    "success" => false,
+                    "message" => $data["email"] . "is not a valid email address",
+                ];
+            }
+
+            $user->setEmail($data["email"]);
+        }
 
         try {
             $updatedUser = $this->userRepo->update($user);

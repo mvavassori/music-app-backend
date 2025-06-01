@@ -46,8 +46,8 @@ class ArtistService {
     }
 
     public function getArtist($id): array {
-        $artist = $this->artistRepo->findById($id);
 
+        $artist = $this->artistRepo->findById($id);
         if (!$artist) {
             return [
                 "success" => false,
@@ -72,15 +72,7 @@ class ArtistService {
         ];
     }
 
-
-    public function updateArtist(int $id, string $name, ?string $bio = null, ?string $imageUrl = null): array {
-        // validation
-        if (empty($name)) {
-            return [
-                "success" => false,
-                "message" => "Artist name is required"
-            ];
-        }
+    public function updateArtist(int $id, array $data): array { // $name, $bio, $imageUrl
 
         // get existing artist
         $artist = $this->artistRepo->findById($id);
@@ -91,10 +83,24 @@ class ArtistService {
             ];
         }
 
-        // update fields
-        $artist->setName($name);
-        $artist->setBio($bio);
-        $artist->setImageUrl($imageUrl);
+        // update only the fields that were provided
+        if (isset($data['name'])) {
+            if (empty($data['name'])) { // if there's a name field, it must not be empty
+                return [
+                    'success' => false,
+                    'message' => 'Artist name cannot be empty'
+                ];
+            }
+            $artist->setName($data['name']);
+        }
+
+        if (isset($data['bio'])) {
+            $artist->setBio($data['bio']);
+        }
+
+        if (isset($data['imageUrl'])) {
+            $artist->setImageUrl($data['imageUrl']);
+        }
 
         try {
             $updatedArtist = $this->artistRepo->update($artist);
@@ -112,8 +118,8 @@ class ArtistService {
     }
 
     public function deleteArtist($id): array {
-        $artist = $this->artistRepo->findById($id);
 
+        $artist = $this->artistRepo->findById($id);
         if (!$artist) {
             return [
                 "success" => false,
