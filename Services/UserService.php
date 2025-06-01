@@ -10,11 +10,11 @@ class UserService {
     // inject userRepo
     public function __construct($userRepo) {
         $this->userRepo = $userRepo;
-    }   
+    }
 
     public function register($username, $email, $password): array {
         // validation 
-        if(empty($username) || empty($email) || empty($password)) {
+        if (empty($username) || empty($email) || empty($password)) {
             return [
                 "success" => false,
                 "message" => "All fields required",
@@ -29,7 +29,7 @@ class UserService {
         }
 
         // check if email address already exists
-        if($this->userRepo->emailExists($email)) {
+        if ($this->userRepo->emailExists($email)) {
             return [
                 "success" => false,
                 "message" => "$email is already claimed",
@@ -66,7 +66,7 @@ class UserService {
 
     public function login($email, $password): array {
         // validation
-        if(empty($email) || empty($password)) {
+        if (empty($email) || empty($password)) {
             return [
                 "success" => false,
                 "message" => "All fields required",
@@ -105,18 +105,17 @@ class UserService {
     }
 
     public function getProfile($id): array {
-        try {
-            $user = $this->userRepo->findById($id);
-            return [
-                "success" => true,
-                "user" => $user
-            ];
-        } catch (\Exception $e) {
+        $user = $this->userRepo->findById($id);
+        if (!$user) {
             return [
                 "success" => false,
                 "message" => "User not found"
             ];
         }
+        return [
+            "success" => true,
+            "user" => $user
+        ];
     }
 
     public function updateProfile($userId, $username, $email): array {
@@ -147,7 +146,7 @@ class UserService {
             return [
                 "success" => true,
                 "message" => "User updated successfully",
-                "user"=> $updatedUser
+                "user" => $updatedUser
             ];
         } catch (\Exception $e) {
             return [
@@ -164,10 +163,10 @@ class UserService {
         if (!$user) {
             return [
                 "success" => false,
-                "message" => "U not found"
+                "message" => "User not found"
             ];
         }
-        
+
         try {
             $this->userRepo->delete($id);
             return [
@@ -177,7 +176,7 @@ class UserService {
         } catch (\Exception $e) {
             return [
                 "success" => false,
-                "message" => "Invalid user id"
+                "message" => "Deletion failed: " . $e->getMessage()
             ];
         }
     }
