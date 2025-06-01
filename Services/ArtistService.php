@@ -46,34 +46,30 @@ class ArtistService {
     }
 
     public function getArtist($id): array {
-        try {
-            $artist = $this->artistRepo->findById($id);
-            return [
-                "success" => true,
-                "artist" => $artist
-            ];
-        } catch (\Exception $e) {
+        $artist = $this->artistRepo->findById($id);
+
+        if (!$artist) {
             return [
                 "success" => false,
                 "message" => "Artist not found"
             ];
         }
+
+        return [
+            "success" => true,
+            "artist" => $artist
+        ];
+
     }
 
     public function getAllArtists(): array {
-        try {
-            $artists = $this->artistRepo->findAll();
-            return [
-                'success' => true,
-                'artists' => $artists,
-                'count' => count($artists)
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'Failed to fetch artists: ' . $e->getMessage()
-            ];
-        }
+        // no need to check for anything. If there's no artist, it will simply return count 0 and an empty array
+        $artists = $this->artistRepo->findAll();
+        return [
+            "success" => true,
+            "artists" => $artists,
+            "count" => count($artists)
+        ];
     }
 
 
@@ -81,8 +77,8 @@ class ArtistService {
         // validation
         if (empty($name)) {
             return [
-                'success' => false,
-                'message' => 'Artist name is required'
+                "success" => false,
+                "message" => "Artist name is required"
             ];
         }
 
@@ -90,8 +86,8 @@ class ArtistService {
         $artist = $this->artistRepo->findById($id);
         if (!$artist) {
             return [
-                'success' => false,
-                'message' => 'Artist not found'
+                "success" => false,
+                "message" => "Artist not found"
             ];
         }
 
@@ -103,14 +99,14 @@ class ArtistService {
         try {
             $updatedArtist = $this->artistRepo->update($artist);
             return [
-                'success' => true,
-                'message' => 'Artist updated successfully',
-                'artist' => $updatedArtist
+                "success" => true,
+                "message" => "Artist updated successfully",
+                "artist" => $updatedArtist
             ];
         } catch (\Exception $e) {
             return [
-                'success' => false,
-                'message' => 'Update failed: ' . $e->getMessage()
+                "success" => false,
+                "message" => "Update failed: " . $e->getMessage()
             ];
         }
     }
@@ -124,17 +120,17 @@ class ArtistService {
                 "message" => "Artist not found"
             ];
         }
-        
+
         try {
             $this->artistRepo->delete($id);
             return [
                 "success" => true,
-                "message" => "User deleted succesfully"
+                "message" => "Artist deleted succesfully"
             ];
         } catch (\Exception $e) {
             return [
                 "success" => false,
-                "message" => "Invalid user id"
+                "message" => "Deletion failed: " . $e->getMessage()
             ];
         }
     }
