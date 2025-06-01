@@ -36,6 +36,19 @@ class SongRepository extends BaseRepository {
         return $songs;
     }
 
+    // retrieve a song and the artist's name who made that song
+    public function findByIdWithArtist($id) {
+        $query = "SELECT songs.*, artists.name as artist_name
+                    FROM songs
+                    JOIN artists ON songs.artist_id = artists.id
+                    WHERE songs.id = ?";
+        $stmt = $this->execute($query, [$id]);
+
+        $result = $stmt->fetch();
+
+        return $result ?: null;
+    }
+
     public function create(Song $song): Song|null {
 
         // first check if the artist exists (artist_id is a foreign key)
@@ -104,18 +117,6 @@ class SongRepository extends BaseRepository {
         } catch (PDOException $e) {
             throw new PDOException("Failed to delete song: " . $e->getMessage());
         }
-    }
-
-    public function findByIdWithArtist($id) {
-        $query = "SELECT songs.*, artists.name as artist_name
-                    FROM songs
-                    JOIN artists ON songs.artist_id = artists.id
-                    WHERE songs.id = ?";
-        $stmt = $this->execute($query, [$id]);
-
-        $result = $stmt->fetch();
-
-        return $result ?: null;
     }
 
     private function mapRowToSong($row): Song {
