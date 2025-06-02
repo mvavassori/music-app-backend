@@ -2,85 +2,94 @@
 namespace Repositories;
 
 use Models\User;
-use PDOException;
 
 class UserRepository extends BaseRepository {
     public function findById(int $id): User|null {
         $stmt = $this->execute("SELECT * FROM users WHERE id = ?", [$id]); // execute method comes from the parent class 
-        
         $row = $stmt->fetch();  // get one row (or false if not found)
-        
         // if we found a row, convert it to User, otherwise return null
         return $row ? $this->mapRowToUser($row) : null;
     }
 
     public function findByEmail(string $email): User|null {
         $stmt = $this->execute("SELECT * FROM users WHERE email = ?", [$email]);
-
         $row = $stmt->fetch();
-
         return $row ? $this->mapRowToUser($row) : null;
     }
 
-    public function create(User $user): User|null {
-        $query = "INSERT INTO users (username, email, password, created_at, updated_at) 
-                  VALUES (?, ?, ?, NOW(), NOW())"; // NOW for created_at and updated_at
-        
-        try {
-            $this->execute($query, [
-                $user->getUsername(),
-                $user->getEmail(),
-                $user->getPassword()
-            ]);
-
-             // Get the ID of the newly created record
-            $newId = (int) $this->db->lastInsertId();
-
-            return $this->findById($newId);
-
-        } catch(PDOException $e) {
-            throw new PDOException("Failed to create user" . $e->getMessage() . "\n");
-        }
+    public function findByUsername(string $username): User|null {
+        $stmt = $this->execute("SELECT * FROM users WHERE username = ?", [$username]);
+        $row = $stmt->fetch();
+        return $row ? $this->mapRowToUser($row) : null;
     }
-    
+
+    public function create(User $user): User {
+        $query = "INSERT INTO users (username, email, password, created_at, updated_at) 
+                  VALUES (?, ?, ?, NOW(), NOW())";
+
+        // let PDOException bubble up for duplicate email/username
+        $this->execute($query, [
+            $user->getUsername(),
+            $user->getEmail(),
+            $user->getPassword()
+        ]);
+
+        $newId = (int) $this->db->lastInsertId();
+
+        $created = $this->findById($newId);
+        if (!$created) {
+            throw new \RuntimeException("Failed to retrieve newly created user");
+        }
+
+        return $created;
+    }
+
     public function update(User $user): User {
         $query = "UPDATE users 
-                  SET username = ?, email = ?, password = ?, updated_at = NOW() 
+                  SET username = ?, email = ?, updated_at = NOW() 
                   WHERE id = ?";
-        
-        try {
-            $this->execute($query, [
-                $user->getUsername(),
-                $user->getEmail(),
-                $user->getPassword(),
-                $user->getId()  
-            ]);
-            
-            // Return the updated user
-            return $this->findById($user->getId());
-            
-        } catch (PDOException $e) {
-            throw new PDOException("Failed to update user: " . $e->getMessage());
+
+        $stmt = $this->execute($query, [
+            $user->getUsername(),
+            $user->getEmail(),
+            $user->getId()
+        ]);
+
+        if ($stmt->rowCount() === 0) {
+            throw new \RuntimeException("User with ID {$user->getId()} not found");
         }
+
+        $updated = $this->findById($user->getId());
+        if (!$updated) {
+            throw new \RuntimeException("Failed to retrieve updated user");
+        }
+
+        return $updated;
+    }
+
+    public function updatePassword(int $userId, string $hashedPassword): bool {
+        $query = "UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?";
+
+        $stmt = $this->execute($query, [$hashedPassword, $userId]);
+
+        return $stmt->rowCount() > 0;
     }
 
     public function delete(int $id): bool {
-        try {
-            $stmt = $this->execute("DELETE FROM users WHERE id = ?", [$id]);
-            
-            // rowCount() tells us how many rows were affected
-            return $stmt->rowCount() > 0;  // true if something was deleted
-            
-        } catch (PDOException $e) {
-            throw new PDOException("Failed to delete user: " . $e->getMessage());
-        }
+        $stmt = $this->execute("DELETE FROM users WHERE id = ?", [$id]);
+        return $stmt->rowCount() > 0;
     }
 
     // helper method
     public function emailExists(string $email): bool {
         $stmt = $this->execute("SELECT COUNT(*) FROM users WHERE email = ?", [$email]);
         $count = $stmt->fetchColumn();  // fetchColumn() gets the first column of first row (i just need to check if there's a row)
-        
+        return $count > 0;
+    }
+
+    public function usernameExists(string $username): bool {
+        $stmt = $this->execute("SELECT COUNT(*) FROM users WHERE username = ?", [$username]);
+        $count = $stmt->fetchColumn() > 0;
         return $count > 0;
     }
 
@@ -90,9 +99,9 @@ class UserRepository extends BaseRepository {
         return new User(
             (int) $row['id'],
             $row['username'],
-            $row['email'], 
+            $row['email'],
             $row['password'],
-            $row['created_at'], 
+            $row['created_at'],
             $row['updated_at']
         );
     }

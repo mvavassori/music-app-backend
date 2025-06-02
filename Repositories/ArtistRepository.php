@@ -16,12 +16,12 @@ class ArtistRepository extends BaseRepository {
 
     public function findAll(): array {
         $stmt = $this->execute("SELECT * FROM artists ORDER BY name");
-        
+
         $artists = [];
         while ($row = $stmt->fetch()) {
             $artists[] = $this->mapRowToArtist($row);
         }
-        
+
         return $artists;
     }
 
@@ -29,50 +29,59 @@ class ArtistRepository extends BaseRepository {
         $query = "INSERT INTO artists (name, bio, image_url, created_at, updated_at) 
                   VALUES (?, ?, ?, NOW(), NOW())";
 
-        try {
-            $this->execute($query, [
-                $artist->getName(),
-                $artist->getBio(),
-                $artist->getImageUrl()
-            ]);
-            $newId = (int) $this->db->lastInsertId();
+        $this->execute($query, [
+            $artist->getName(),
+            $artist->getBio(),
+            $artist->getImageUrl()
+        ]);
+        $newId = (int) $this->db->lastInsertId();
 
-            return $this->findById($newId);
+        $created = $this->findById($newId);
 
-        } catch (PDOException $e) {
-            throw new PDOException("Failed to create artist" . $e->getMessage() . "\n");
+        if (!$created) {
+            throw new \RuntimeException("Failed to retrieve newly created artist");
         }
+
+        return $created;
     }
 
     public function update(Artist $artist): Artist {
+        if (!$artist->getId()) {
+            throw new \InvalidArgumentException("Cannot update artist without ID");
+        }
         $query = "UPDATE artists 
                   SET name = ?, bio = ?, image_url = ?, updated_at = NOW() 
                   WHERE id = ?";
-        
-        try {
-            $this->execute($query, [
-                $artist->getName(),
-                $artist->getBio(),
-                $artist->getImageUrl(),
-                $artist->getId()
-            ]);
-            
-            // return the updated artist
-            return $this->findById($artist->getId());
-            
-        } catch (PDOException $e) {
-            throw new PDOException("Failed to update artist: " . $e->getMessage());
+
+        $stmt = $this->execute($query, [
+            $artist->getName(),
+            $artist->getBio(),
+            $artist->getImageUrl(),
+            $artist->getId()
+        ]);
+
+        // check if any row was actually updated
+        if ($stmt->rowCount() === 0) {
+            throw new \RuntimeException("Artist with ID {$artist->getId()} not found");
         }
+
+        $updated = $this->findById($artist->getId());
+        if (!$updated) {
+            throw new \RuntimeException("Failed to retrieve updated artist");
+        }
+
+        return $updated;
     }
-    
+
     public function delete(int $id): bool {
-        try {
-            $stmt = $this->execute("DELETE FROM artists WHERE id = ?", [$id]);
-            return $stmt->rowCount() > 0;
-            
-        } catch (PDOException $e) {
-            throw new PDOException("Failed to delete artist: " . $e->getMessage());
-        }
+        // no need to catch and re-throw with less information
+        $stmt = $this->execute("DELETE FROM artists WHERE id = ?", [$id]);
+        return $stmt->rowCount() > 0;
+    }
+
+    public function countAll(): int {
+        $stmt = $this->execute("SELECT COUNT(*) FROM artists");
+        return (int) $stmt->fetchColumn();
     }
 
     private function mapRowToArtist($row): Artist {
