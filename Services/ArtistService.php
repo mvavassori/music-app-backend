@@ -3,6 +3,8 @@ namespace Services;
 
 use Models\Artist;
 use Repositories\ArtistRepository;
+use Exceptions\ValidationException;
+use Exceptions\NotFoundException;
 
 class ArtistService {
     private ArtistRepository $artistRepo;
@@ -11,85 +13,63 @@ class ArtistService {
         $this->artistRepo = $artistRepo;
     }
 
-    public function createArtist($name, $bio = null, $imageUrl = null): array {
+    public function createArtist($name, $bio = null, $imageUrl = null): Artist {
         if (empty($name)) {
-            return [
-                "success" => false,
-                "message" => "You must provide a name"
-            ];
+            throw new ValidationException("Artist name is required");
         }
 
-        try {
-            $artist = new Artist(
-                id: null,
-                name: $name,
-                bio: $bio,
-                imageUrl: $imageUrl,
-                createdAt: null,
-                updatedAt: null
-            );
-
-            $createdArtist = $this->artistRepo->create($artist);
-
-            return [
-                "success" => true,
-                "message" => "Artist created successfully",
-                "artist" => $createdArtist
-            ];
-
-        } catch (\Exception $e) {
-            return [
-                "success" => false,
-                "message" => "Artist creation failed: " . $e->getMessage(),
-            ];
+        if (strlen($name) > 255) {
+            throw new ValidationException("Artist name cannot exceed 255 characters");
         }
+
+        $artist = new Artist(
+            id: null,
+            name: $name,
+            bio: $bio,
+            imageUrl: $imageUrl,
+            createdAt: null,
+            updatedAt: null
+        );
+
+        $createdArtist = $this->artistRepo->create($artist);
+
+        return $createdArtist;
+
     }
 
-    public function getArtist($id): array {
+    public function getArtist($id): Artist {
 
         $artist = $this->artistRepo->findById($id);
+
         if (!$artist) {
-            return [
-                "success" => false,
-                "message" => "Artist not found"
-            ];
+            throw new NotFoundException("Artist with ID $id not found");
         }
 
-        return [
-            "success" => true,
-            "artist" => $artist
-        ];
+        return $artist;
 
     }
 
     public function getAllArtists(): array {
-        // no need to check for anything. If there's no artist, it will simply return count 0 and an empty array
+        // no need to check for anything. If there's no artist it will return an empty array
         $artists = $this->artistRepo->findAll();
-        return [
-            "success" => true,
-            "artists" => $artists,
-            "count" => count($artists)
-        ];
+        return $artists;
     }
 
-    public function updateArtist(int $id, array $data): array { // $name, $bio, $imageUrl
+    public function updateArtist(int $id, array $data): Artist { // $name, $bio, $imageUrl
 
         // get existing artist
         $artist = $this->artistRepo->findById($id);
         if (!$artist) {
-            return [
-                "success" => false,
-                "message" => "Artist not found"
-            ];
+            throw new NotFoundException("Artist with ID $id not found");
         }
 
         // update only the fields that were provided
         if (isset($data['name'])) {
-            if (empty($data['name'])) { // if there's a name field, it must not be empty
-                return [
-                    'success' => false,
-                    'message' => 'Artist name cannot be empty'
-                ];
+            if (empty($data['name'])) {
+                throw new ValidationException("Artist name cannot be empty");
+            }
+            if (strlen($data['name']) > 255) {
+                throw new ValidationException("Artist name cannot exceed 255 characters");
             }
             $artist->setName($data['name']);
         }
@@ -102,42 +82,15 @@ class ArtistService {
             $artist->setImageUrl($data['imageUrl']);
         }
 
-        try {
-            $updatedArtist = $this->artistRepo->update($artist);
-            return [
-                "success" => true,
-                "message" => "Artist updated successfully",
-                "artist" => $updatedArtist
-            ];
-        } catch (\Exception $e) {
-            return [
-                "success" => false,
-                "message" => "Update failed: " . $e->getMessage()
-            ];
-        }
+        return $this->artistRepo->update($artist);
     }
 
-    public function deleteArtist($id): array {
+    public function deleteArtist($id): void {
 
-        $artist = $this->artistRepo->findById($id);
-        if (!$artist) {
-            return [
-                "success" => false,
-                "message" => "Artist not found"
-            ];
+        if (!$this->artistRepo->findById($id)) {
+            throw new NotFoundException("Artist with ID $id not found");
         }
 
-        try {
-            $this->artistRepo->delete($id);
-            return [
-                "success" => true,
-                "message" => "Artist deleted succesfully"
-            ];
-        } catch (\Exception $e) {
-            return [
-                "success" => false,
-                "message" => "Deletion failed: " . $e->getMessage()
-            ];
-        }
+        $this->artistRepo->delete($id);
     }
 }
