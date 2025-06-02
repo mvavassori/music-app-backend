@@ -2,7 +2,6 @@
 namespace Repositories;
 
 use Models\Artist;
-use PDOException;
 
 class ArtistRepository extends BaseRepository {
 
