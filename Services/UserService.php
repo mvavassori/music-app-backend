@@ -19,15 +19,13 @@ class UserService {
     }
 
     public function register(string $username, string $email, string $password): User {
-        // validation
+        // validation method below
         $this->validateRegistrationData($username, $email, $password);
 
-        // check if email already exists
         if ($this->userRepo->emailExists($email)) {
             throw new DuplicateEntityException("Email address is already registered");
         }
 
-        // check if username already exists
         if ($this->userRepo->usernameExists($username)) {
             throw new DuplicateEntityException("Username is already taken");
         }
