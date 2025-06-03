@@ -10,7 +10,7 @@ class BaseController {
         exit;
     }
 
-    protected function sendError(string $message, int $statusCode = 400): void {
+    protected function sendError(string $message, int $statusCode = 400) {
         return $this->sendResponse(["error" => $message], $statusCode);
     }
 
