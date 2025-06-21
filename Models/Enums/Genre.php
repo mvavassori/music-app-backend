@@ -2,7 +2,7 @@
 namespace Models\Enums;
 
 // enum works from php 8.1 and later. With older versions i should have done a class with const variables for genres.
-enum Genre {
+enum Genre: string {
     case ROCK = 'rock';
     case POP = 'pop';
     case JAZZ = 'jazz';
